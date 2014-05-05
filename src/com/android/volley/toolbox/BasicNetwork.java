@@ -37,7 +37,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.conn.ConnectTimeoutException;
-import org.apache.http.client.utils.DateUtils;
+import org.apache.http.impl.cookie.DateUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,6 +46,9 @@ import java.net.SocketTimeoutException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
+import java.util.Locale;
 
 /**
  * A network performing Volley requests over an {@link HttpStack}.
@@ -56,6 +59,9 @@ public class BasicNetwork implements Network {
     private static int SLOW_REQUEST_THRESHOLD_MS = 3000;
 
     private static int DEFAULT_POOL_SIZE = 4096;
+
+    private static String RFC1123_DATE_PATTERN = "EEE, dd MMM yyyy HH:mm:ss 'GMT'";
+    private static SimpleDateFormat dateFormatRFC1123 = new SimpleDateFormat(RFC1123_DATE_PATTERN, Locale.US);
 
     protected final HttpStack mHttpStack;
 
@@ -212,7 +218,9 @@ public class BasicNetwork implements Network {
 
         if (entry.serverDate > 0) {
             Date refTime = new Date(entry.serverDate);
-            headers.put("If-Modified-Since", DateUtils.formatDate(refTime));
+	    // dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+            // headers.put("If-Modified-Since", DateUtils.formatDate(refTime));
+            headers.put("If-Modified-Since", dateFormatRFC1123.format(refTime));
         }
     }
 
